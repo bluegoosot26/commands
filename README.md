@@ -139,9 +139,9 @@ Sets the command type such as PP, BB or Beard.
 Decides if the reply is a stored daily value or if it is a random reply each time the command is used.
 
 ```yaml
-&jokes=false
+&jokes=true
 ```
-Disables jokes.
+Enables jokes.
 
 ```yaml
 &consent=true
