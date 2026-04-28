@@ -35,14 +35,21 @@ function pickRandom(arr) {
 
 function isJokeEnabled(req, type) {
   const global = req.query.jokes;
+  const specific = req.query[`joke_${type}`];
+
+  if (type === "bb") {
+    if (global === "true" || specific === "true") return true;
+    return false;
+  }
+
   if (global === "false") return false;
   if (global === "true") return true;
 
-  const specific = req.query[`joke_${type}`];
   if (specific === "false") return false;
   if (specific === "true") return true;
 
-  return true;
+  // ❌ Jokes default OFF
+  return false;
 }
 
 /**
@@ -58,10 +65,6 @@ function getJoke(req, type, value, cfg = null, index = null) {
   if (!isJokeEnabled(req, type)) return "";
 
   if (typeof value !== "number" || value == null) {
-    return "";
-  }
-
-  if (type === "bb") {
     return "";
   }
 
@@ -130,10 +133,38 @@ const rankEmoji = (i) => {
 // ===========================================
 
 function dailyPairSeed(gameType, sender, target) {
-const today = new Date().toLocaleDateString("en-GB");
-return `${today}-${gameType}-${[sender, target].sort().join("-")}`;
+  const today = new Date().toLocaleDateString("en-GB");
+  return `${today}-${gameType}-${[sender, target].sort().join("-")}`;
 }
 
+// ===========================================
+// 🎲 RANDOM GAMES (UNTRACKED)
+// ===========================================
+
+function runRandomGame(type, sender) {
+  const game = randomGames[type];
+  if (!game) return null;
+
+  const roll = Math.floor(Math.random() * (game.max - game.min + 1)) + game.min;
+
+  let result = roll;
+
+  if (game.map) {
+    result = game.map[roll];
+  }
+
+  const action = game.action || "rolled";
+  const label = game.label.toLowerCase();
+
+  let message = `${sender}, you ${action} a ${label} and got **${result}**! ${game.emoji}`;
+
+  if (game.crits) {
+    if (roll === game.max) message += " 💥 **CRITICAL SUCCESS!**";
+    if (roll === game.min) message += " 💀 **CRITICAL FAIL!**";
+  }
+
+  return message;
+}
 // ===========================================
 // 🎮 ROCK PAPER SCISSORS
 // ===========================================
@@ -511,14 +542,6 @@ const stats = {
     label: "Your Butt Score",
     unitSpace: false,
   },
-  autism: {
-    min: 0,
-    max: 100,
-    levels: [30, 70],
-    unit: "%",
-    label: "Your Tism Level",
-    unitSpace: false,
-  },
 };
 
 // ===========================================
@@ -556,14 +579,6 @@ const love = {
     levels: [30, 70],
     unit: "%",
     label: "Theo Loves You",
-    unitSpace: false,
-  },
-  face: {
-    min: 0,
-    max: 100,
-    levels: [30, 70],
-    label: "Digs loves your face",
-    unit: "%",
     unitSpace: false,
   },
 };
@@ -1457,6 +1472,369 @@ const fish = {
 };
 
 // ===========================================
+// ⛵ SAILS
+// ===========================================
+
+const sails = {
+  sails: {
+    list: [
+      "Affiliate Alliance Sails",
+      "Ancestral Sails",
+      "Aristocrat Sails",
+      "Athena's Fortune Inaugural Guardian Sails",
+      "Athena's Fortune Inaugural Legend Sails",
+      "Azure Scout Sails",
+      "Barrel Bombardier Sails",
+      "Beachcomber's Bounty Sails",
+      "Bear & Bird Sails",
+      "Belle's Ritual Sails",
+      "Black Phoenix Sails",
+      "Bleakheart Banshee Sails",
+      "Blighted Sails",
+      "Bone Crusher Sails",
+      "Boreal Aurora Sails",
+      "Briggsy's Sails",
+      "Celestial Steed Sails",
+      "Collector's Barrel Bombardier Sails",
+      "Collector's Beachcomber's Bounty Sails",
+      "Collector's Bear & Bird Sails",
+      "Collector's Bleakheart Banshee Sails",
+      "Collector's Blighted Sails",
+      "Collector's Boreal Aurora Sails",
+      "Collector's Cursed Ferryman Sails",
+      "Collector's Cutthroat Sails",
+      "Collector's Dark Warsmith Sails",
+      "Collector's Elemental Power Sails",
+      "Collector's Eternal Freedom Sails",
+      "Collector's Fightin' Frogs Sails",
+      "Collector's Frozen Horizon Sails",
+      "Collector's Graveyard Gladiator Sails",
+      "Collector's Huntress Sails",
+      "Collector's Islehopper Outlaw Sails",
+      "Collector's Lionfish Sails",
+      "Collector's Lodestar Sails",
+      "Collector's Lunar Festival Sails",
+      "Crimson Crypt Sails",
+      "Cursed Captain's Sails",
+      "Forsaken Ashes Sails",
+      "Frozen Horizon Sails",
+      "Gilded Phoenix Sails",
+      "Glitterbeard's Sails",
+      "Gold Hoarders Inaugural Captain Sails",
+      "Gold Hoarders Inaugural Marauder Sails",
+      "Golden Banana Sails",
+      "Golden Chaser Sails",
+      "Golden Hour Sails",
+      "Golden Legendary Sails",
+      "Golden Nile Collector's Sails",
+      "Golden Nile Sails",
+      "Golden Skull Sails",
+      "Good Boy Sails",
+      "Graveyard Gladiator Sails",
+      "Huntress Sails",
+      "Loot 'n' Lore Sails",
+      "Lord Guardian Sails",
+      "Lucky Rover Sails",
+      "Lunar Festival Sails",
+      "Magpie's Glory Sails",
+      "Magpie’s Fortune Sails",
+      "Mandrake Sails",
+      "Masked Renegade Sails",
+      "Mayhem Sails",
+      "Mercenary Sails",
+      "Merchant Alliance Inaugural Admiral Sails",
+      "Order of Souls Inaugural Chief Sails",
+      "Order of Souls Inaugural Grandee Sails",
+      "Overachiever Sails",
+      "Paradise Garden Sails",
+      "Prehistoric Plunderer Sails",
+      "Prosperous Captain's Sails",
+      "Reaper's Bones Inaugural Master Sails",
+      "Reaper’s Mark Sails",
+      "Reapers' Ritual Sails",
+      "Regal Hound Sails",
+      "Relic of Darkness Sails",
+      "Silver Blade Sails",
+      "Silver Skull Sails",
+      "Soaring Gilded Phoenix Sails",
+      "Soulflame Sails",
+      "Spartan Sails",
+      "X Marks the Spot Sails",
+      "The Killer Whale Sails",
+      "Black Sailor Sails",
+      "Bottle Green Sailor Sails",
+      "Burgundy Sailor Sails",
+      "Grass Green Sailor Sails",
+      "Navy Blue Sailor Sails",
+      "Orange Sailor Sails",
+      "Purple Sailor Sails",
+      "Red Sailor Sails",
+      "Royal Blue Sailor Sails",
+      "Yellow Sailor Sails",
+      "Admiral Sails",
+      "Ancient Tribute Sails",
+      "Ancient Vault Sails",
+      "Bilge Rat Sails",
+      "Castaway Bilge Rat Sails",
+      "Ceremonial Admiral Sails",
+      "Merchant Pathfinder Sail",
+      "Rogue Sea Dog Sails",
+      "Royal Sovereign Sails",
+      "Ruffian Sea Dog Sails",
+      "Sails of the Ashen Winds",
+      "Sea Dog Sails",
+      "Shark Hunter Sails",
+      "Sovereign Sails",
+      "Burning Blade Sails",
+      "Azure Ocean Crawler Sails",
+      "Glorious Sea Dog Sail",
+      "Gold Hoarders Sails",
+      "Kraken Sails",
+      "Merchant Alliance Sails",
+      "Ocean Crawler Sails",
+      "Order of Souls Sails",
+      "Parrot Sails",
+      "Party Boat Sails",
+      "Reaper's Bones Sails",
+      "Sails of Sunken Sorrow",
+      "Scurvy Bilge Rat Sails",
+      "Deep Ocean Crawler Sails",
+      "Inky Kraken Sails",
+      "Nightshine Parrot Sails",
+      "Legendary Sails",
+      "Triumphant Sea Dog Sail",
+      "Cultured Aristocrat Sails",
+      "Dawn Hunter Sails",
+      "Eastern Winds Jade Sails",
+      "Sails of the Silent Barnacle",
+      "Scorched Forsaken Ashes Sails",
+      "Sunshine Parrot Sails",
+    ],
+    label: "today your ship is repping the",
+  },
+};
+
+// ===========================================
+// ✨ SPELLS (Harry Potter)
+// ===========================================
+
+const spells = {
+  spells: {
+    list: [
+      "Accio",
+      "Aguamenti",
+      "Alohomora",
+      "Anapneo",
+      "Aparecium",
+      "Apparate",
+      "Arresto Momentum",
+      "Ascendio",
+      "Avada Kedavra",
+      "Avis",
+      "Bombarda",
+      "Bombarda Maxima",
+      "Brackium Emendo",
+      "Calvorio",
+      "Caterwauling Charm",
+      "Cave Inimicum",
+      "Colloportus",
+      "Confringo",
+      "Confundo",
+      "Crucio",
+      "Diffindo",
+      "Disillusionment Charm",
+      "Dissendium",
+      "Duro",
+      "Engorgio",
+      "Episkey",
+      "Erecto",
+      "Evanesco",
+      "Expecto Patronum",
+      "Expelliarmus",
+      "Expulso",
+      "Ferula",
+      "Finite Incantatem",
+      "Flagrate",
+      "Flipendo",
+      "Furnunculus",
+      "Geminio",
+      "Glacius",
+      "Homenum Revelio",
+      "Immobulus",
+      "Imperio",
+      "Impervius",
+      "Incarcerous",
+      "Incendio",
+      "Langlock",
+      "Legilimens",
+      "Levicorpus",
+      "Liberacorpus",
+      "Locomotor",
+      "Locomotor Mortis",
+      "Lumos",
+      "Lumos Maxima",
+      "Meteolojinx Recanto",
+      "Mimblewimble",
+      "Mobiliarbus",
+      "Mobilicorpus",
+      "Morsmordre",
+      "Muffliato",
+      "Nox",
+      "Obliterate",
+      "Obliviate",
+      "Oppugno",
+      "Orchideous",
+      "Periculum",
+      "Petrificus Totalus",
+      "Point Me",
+      "Portus",
+      "Prior Incantato",
+      "Protego",
+      "Protego Maxima",
+      "Reducto",
+      "Relashio",
+      "Reparo",
+      "Repello Muggletum",
+      "Revelio",
+      "Rictusempra",
+      "Riddikulus",
+      "Salvio Hexia",
+      "Scourgify",
+      "Sectumsempra",
+      "Serpensortia",
+      "Silencio",
+      "Sonorus",
+      "Specialis Revelio",
+      "Stupefy",
+      "Tarantallegra",
+      "Tergeo",
+      "Unbreakable Vow",
+      "Vulnera Sanentur",
+      "Wingardium Leviosa",
+    ],
+    label: "the spell cast is",
+  },
+};
+
+// ===========================================
+// ✨ PATRONUSES (Harry Potter)
+// ===========================================
+
+const patronus = {
+  patronus: {
+    list: [
+      "Stag",
+      "Doe",
+      "Otter",
+      "Jack Russell Terrier",
+      "Horse",
+      "Wolf",
+      "Hare",
+      "Cat",
+      "Persian Cat",
+      "Tabby Cat",
+      "Tortoiseshell Cat",
+      "Ginger Cat",
+      "Black Mamba",
+      "Adder",
+      "Grass Snake",
+      "Salmon",
+      "Dolphin",
+      "Shark",
+      "Tuna",
+      "Seahorse",
+      "Swan",
+      "Goose",
+      "Eagle",
+      "Hawk",
+      "Falcon",
+      "Buzzard",
+      "Sparrow",
+      "Robin",
+      "Magpie",
+      "Raven",
+      "Crow",
+      "Osprey",
+      "Heron",
+      "Peacock",
+      "Phoenix",
+      "Thestral",
+      "Dragon",
+      "Unicorn",
+      "Abraxan Winged Horse",
+      "Granian Winged Horse",
+      "White Mare",
+      "Wild Boar",
+      "Boar",
+      "Bear",
+      "Brown Bear",
+      "Polar Bear",
+      "Badger",
+      "Honey Badger",
+      "Stoat",
+      "Weasel",
+      "Marten",
+      "Ferret",
+      "Hedgehog",
+      "Otterhound",
+      "Fox",
+      "Arctic Fox",
+      "Red Fox",
+      "Bat",
+      "Mole",
+      "Mouse",
+      "Rat",
+      "Squirrel",
+      "Chipmunk",
+      "Beaver",
+      "Otter (River)",
+      "Seal",
+      "Walrus",
+      "Elephant",
+      "Rhinoceros",
+      "Hippopotamus",
+      "Camel",
+      "Giraffe",
+      "Zebra",
+      "Lion",
+      "Lioness",
+      "Leopard",
+      "Panther",
+      "Cheetah",
+      "Tiger",
+      "Lynx",
+      "Wildcat",
+      "Kneazle",
+      "Crup",
+      "Jackal",
+      "Hyena",
+      "Ibex",
+      "Goat",
+      "Ram",
+      "Sheep",
+      "Cow",
+      "Bull",
+      "Stallion",
+      "Mare",
+      "Donkey",
+      "Mule",
+      "Rabbit",
+      "Hare",
+      "Frog",
+      "Toad",
+      "Newt",
+      "Salamander",
+      "Dragonfly",
+      "Butterfly",
+      "Moth",
+      "Fire-Dwelling Salamander",
+      "Non-Corporeal Patronus",
+    ],
+    label: "Patronus takes the form of a",
+  },
+};
+
+// ===========================================
 // 🍺 KEG
 // ===========================================
 
@@ -1762,6 +2140,23 @@ const interactions = [
 ];
 
 // ===========================================
+// 🚫 DO NOT TRACK LIST
+// ===========================================
+
+const doNotTrack = [
+  "keg",
+  "fish",
+  "spank",
+  "bonk",
+  "boop",
+  "hug",
+  "kiss",
+  "love",
+  "pat",
+  "slap",
+];
+
+// ===========================================
 // 🎲 RANDOM PERSONAL GAMES (UNTRACKED)
 // ===========================================
 
@@ -1792,44 +2187,20 @@ const randomGames = {
 };
 
 // ===========================================
+// 🚫 AUTO-ADD RANDOM GAMES TO DO NOT TRACK
+// ===========================================
+
+Object.keys(randomGames).forEach((game) => {
+  if (!doNotTrack.includes(game)) {
+    doNotTrack.push(game);
+  }
+});
+
+// ===========================================
 // 🎭 JOKES LIBRARY WITH EMOJIS
 // ===========================================
 
 const jokes = {
-  autism: {
-    low: [
-      "You’re hyper-focused — all systems go! 🔍💡✨",
-      "You’ve found your special interest and are unstoppable today. 🧩🚀📚",
-    ],
-    medium: [
-      "You could use a break from sensory overload. 🧠🔊😅",
-      "You’re doing fine, but a quiet space sounds amazing. 🙉🏞️🌙",
-    ],
-    high: [
-      "You desperately need a sensory reset. 😵‍💫🛑⚡",
-      "Someone get you a weighted blanket and some earplugs ASAP. 🛏️🎧😴",
-    ],
-  },
-  face: {
-    low: [
-      "Digs squinted at your face... suspiciously. 🤨",
-      "Your face has been noted. No further comment. 😐",
-      "Digs is loading opinions… still loading… ⏳",
-      "It’s giving ‘under construction.’ 🚧😅",
-    ],
-    medium: [
-      "Digs nods in approval. Respect. 🙂",
-      "Your face passed inspection! ✅",
-      "Not bad, not bad at all 😏",
-      "Digs thinks you’re kinda easy on the eyes 👀",
-    ],
-    high: [
-      "Digs has declared your face legendary 😍",
-      "That face could launch a thousand ships 🚢🔥",
-      "Digs would frame your face on the wall 🖼️",
-      "Face so good it broke Digs’ system 🤯",
-    ],
-  },
   stinker: {
     low: [
       "There’s a faint smell… probably nothing. 🤨",
@@ -1874,8 +2245,249 @@ const jokes = {
     "The Keg of Ancient Black Powder obliterated half their ship! 🚢💀",
     "The Black Powder Barrel hit perfectly — total devastation! 🔥🎮",
   ],
+sails: [
+    "Flying these says you’re ready to cooperate… but still won’t share the last banana 🍌😅",
+    "Your forebears are watching… and judging your turn rate 👻⚓",
+    "Aristocratic on the seas, peasants in the brig 🏴‍☠️🍷",
+    "Prestigious and perfect for guarding treasure… and your pride 🏆",
+    "Legendary like your greatest battle… against a seagull 😆",
+    "Shark vibes mean you’re either brave… or lunch 🦈😬",
+    "Looks explosive, like your cooking skills 💥🔥",
+    "Beach vibes only… until a storm says otherwise 🌴🌊",
+    "Fierce as a bear, flighty as a bird 🐻🕊️",
+    "Elegant enough for a ritual, weird enough for your crew 🎭",
+    "Rise from the ashes… or get sunburned trying 🔥😎",
+    "Spooky winds scream louder than your crew 👻💨",
+    "Undead chic for those killer aesthetic goals ☠️✨",
+    "Looks scary, but mostly just snacks bones 🍗💀",
+    "Northern lights on canvas… navigation not included 🌌🧭",
+    "Dabbling in fashion with nautical flair 🎨⚓",
+    "Mythical horse dreams meet salty sea air 🦄🌊",
+    "For the pirate who loves explosive souvenirs 💣🏴‍☠️",
+    "Beach vibes and memories… sand included 🌴😄",
+    "Bear necessities wrapped in pirate chic 🐻🪶",
+    "Haunt your enemies with ghostly style 👻⚓",
+    "Cursed, but quite fetching on deck ☠️🖤",
+    "Paint the sky on your ship’s wings 🌌🚢",
+    "Row with style, even if ghosts are aboard 👻🚣",
+    "Sharp design for sharp tactics ✂️😎",
+    "Forge fear with every breeze 🔥⚔️",
+    "Elemental force on canvas 🌪️🔥💧",
+    "As free as your wandering crew 🏴‍☠️🌬️",
+    "Frog force! Ribbit and row 🐸⚔️",
+    "Cool breeze meets frosty fun ❄️🌅",
+    "Bones and bravery enshrined ☠️🏟️",
+    "Aim high, sail true 🎯🌊",
+    "Hideouts and high seas mischief 🏝️😈",
+    "Strike with spines and style 🐠✨",
+    "Cosmic compass catching constellations 🌠🧭",
+    "Lunar luck and sea luck, hopefully both 🌕🍀",
+    "Deep reds for deep secrets 🩸🔐",
+    "Cursed isn’t unlucky… it’s stylish 😈⚓",
+    "Smoky elegance with a hint of regret 🔥😔",
+    "Ice on canvas, warmth in heart ❄️❤️",
+    "Gold and fire, twice the drama 🔥✨",
+    "Glitter? Beard? Yes please 🧔✨",
+    "Captain of gold, master of glitter 💰🏴‍☠️",
+    "Marauding with bling ⚔️💎",
+    "Classy and potassium-rich 🍌😄",
+    "Chase gold, catch envy ✨🏃‍☠️",
+    "Perfect lighting for pirate selfies 📸✨",
+    "Legendary and glowing — almost blinding ⚓💛",
+    "Ancient river vibes meet pirate tides 🌊🏺",
+    "Sail like you own the desert sea 🏜️🌊",
+    "Bones with a golden touch 💀💛",
+    "Bark less, sail more 🐕🚢",
+    "Bones always look tough in the wind ☠️💪",
+    "Aim true across the waves 🎯🌊",
+    "Treasure stories stitched into fabric 🗺️✨",
+    "Regal protection for your vessel 🤴⚓",
+    "Four-leaf breeze of fortune 🍀🌬️",
+    "Celebrate moon tides and good finds 🌕🎉",
+    "Shiny things love these sails ✨🪶",
+    "Fortune favors the flashy ✨💰",
+    "Botanical intimidation on deck 🪴😄",
+    "Mysterious and “don’t mess with us” 😎⚓",
+    "Chaos looks good in the breeze 💨🔥",
+    "Get paid, get wind, get glory 💼🌊",
+    "Trade winds and tight deals 📦💨",
+    "Skulls and strategy ☠️🧠",
+    "High skull rank, higher style 🏴‍☠️⚡",
+    "Too much effort? Never 🚢💪",
+    "Party under the sun and stars 🌺🎉",
+    "Ancient bones approve 🦴😂",
+    "Prosperity looks this good 💰✨",
+    "Master of bones, master of the seas ☠️🏆",
+    "Marked for terror and treasure 😈💀",
+    "Ritual winds howl for you 🌀⚔️",
+    "Royal tails wag aboard 🐕👑",
+    "Darkness with a hint of drama 🌑🎭",
+    "Cut through waves like a silver knife 🔪🌊",
+    "Shiny bones make bold statements ⚰️✨",
+    "Rise up, shine bright 🔥🌟",
+    "Spirit fire travels fast 💀🔥",
+    "Disciplined on deck, chaotic at port 🛡️🍻",
+    "Treasure? Or just confusion? 🗺️❓",
+    "Giant sea vibes, surfer approved 🐋🌊",
+    "Classic black, pirate chic 🖤⚓",
+    "Green dreams for every pirate 🍀⛵",
+    "Rich hues, richer booty 🍷💰",
+    "Camouflage meets style 🌱😄",
+    "Look deep, sail deeper 🌊💙",
+    "Bright and spirited 🍊🔥",
+    "Regal tones for sea royalty 🟣👑",
+    "Bold as cannon smoke 🔴💥",
+    "Aristocrat of the waves 👑🌊",
+    "Sunshine and good vibes 🌞😎",
+    "Salute the wind 🫡💨",
+    "Honor old legends and new tricks 📜✨",
+    "Locked treasures in every thread 🔐🏴‍☠️",
+    "Ragged glory on deck 🐀😅",
+    "Castaway chic meets pirate swagger 🏝️💪",
+    "Dress code: pirate formal 🪶🎩",
+    "Chart your course, then improvise 🧭🚢",
+    "Scruffy style with salty tales 🐶🌊",
+    "Regal winds for epic voyages 👑💨",
+    "Rough, tumble, and adorable 🐕‍🦺😄",
+    "Winds whisper ancient mischief 🌫️😈",
+    "Loyal and loud on the waves 🐶⚓",
+    "Jaws and sails alike bite hard 🦈🔥",
+    "Velvet sea vibes, pirate tested 🪶🌊",
+    "Fire and salt mix well together 🔥⚓",
+    "Ocean explorers at heart 🌊🔍",
+    "Bark louder, sail prouder 🐶✨",
+    "Treasure vibes packed deep 🪙🌊",
+    "Legendary beast approved 🐙🌊",
+    "Trade winds bring gossip and gold 📦🌬️",
+    "Brave the deep with flair 🌊🐚",
+    "Skeletons fear your style ☠️💀",
+    "Squawk and sail in style 🦜🎉",
+    "Party all tide long 🎉🌊",
+    "Bones never looked so bold ☠️🖤",
+    "Deep feels on deep waves 😢🌊",
+    "Scurvy never looked so chic 🐀😎",
+    "Dive into style 🌊🔎",
+    "Black tentacles for dramatic flair 🐙🖤",
+    "Glowing feathers and midnight mischief 🦜🌙",
+    "Epic on deck, tales in port 🏅🍻",
+    "Victory barks across the waves 🐶🏆",
+    "Cultured waves, refined pirates 🪶🍷",
+    "Chase the sunrise and your targets 🌅🎯",
+    "Jade breeze vibes 🌿🌬️",
+    "Quiet but mysteriously sticky 🐚😆",
+    "Fiery remains looking cool 🔥🖤",
+    "Squawk with sunlight flair 🦜☀️",
+  ],
+  patronus: [
+    "Majestic, heroic, and definitely aware you’re the main character 🦌✨",
+    "Quiet, graceful, and emotionally devastating to your enemies 🦌💔",
+    "Adorable, loyal, and somehow terrifyingly effective 🦦⚡",
+    "Small dog energy, huge magical confidence 🐶✨",
+    "Strong, steady, and ready to trample fear 🐎💨",
+    "Loyal to the pack, dangerous to cross 🐺🌕",
+    "Fast, alert, and always two steps ahead 🐇⚡",
+    "Independent, judgmental, and magically superior 🐱✨",
+    "Elegant fluff with an air of disapproval 🐈‍⬛🎩",
+    "Classic, clever, and quietly judging you 🐈📚",
+    "Stylish chaos wrapped in fur 🐈🎨",
+    "Orange energy, zero regrets 🐈🔥",
+    "Silent, sleek, and absolutely venomous vibes 🐍🖤",
+    "Small snake, big warning ⚠️🐍",
+    "Harmless-looking but magically committed 🐍😌",
+    "Calm swimmer, strong current energy 🐟🌊",
+    "Friendly, clever, and emotionally supportive 🐬💙",
+    "Pure menace with a perfect silhouette 🦈😬",
+    "Fast, shiny, and surprisingly aggressive 🐟⚡",
+    "Tiny horse of the sea, big magical heart 🐴🌊",
+    "Graceful, dramatic, and impossible to ignore 🦢✨",
+    "Loud, loyal, and ready to throw hands 🪿😤",
+    "Soaring confidence with sharp vision 🦅🌤️",
+    "Precision, focus, and no wasted movement 🦅🎯",
+    "Fast dive, faster decisions 🦅⚡",
+    "Looks calm until it absolutely isn’t 🦅😐",
+    "Small bird, big courage 🐦💪",
+    "Friendly, brave, and secretly heroic 🐦❤️",
+    "Shiny things? Yours now 🐦✨",
+    "Dark feathers, darker thoughts 🐦‍⬛🖤",
+    "Wise eyes, silent judgment 🦉📚",
+    "Patience, balance, and perfect timing 🐦🌊",
+    "Elegant menace with fabulous feathers 🦚✨",
+    "Rebirth, resilience, and dramatic entrances 🔥🦅",
+    "Rare, eerie, and emotionally complicated 🐴🌫️",
+    "Overkill? Absolutely. Worth it? Yes 🐉🔥",
+    "Pure magic, zero tolerance for nonsense 🦄✨",
+    "Luxury horse energy 🐎💎",
+    "Speed, power, and unstoppable grace 🐎⚡",
+    "Calm strength with emotional depth 🐎🌙",
+    "Headstrong, fearless, and loud about it 🐗💥",
+    "Classic brute force 🐗😤",
+    "Big presence, bigger confidence 🐻💪",
+    "Warm strength with a protective streak 🐻🤎",
+    "Cold power, zero fear 🐻❄️",
+    "Hardworking, loyal, and criminally underestimated 🦡✨",
+    "Do not test this one 🦡🔥",
+    "Small, fierce, and deeply offended 🐀⚡",
+    "Sneaky but loyal 🐀😌",
+    "Fast paws, sharp instincts 🐀💨",
+    "Long body, longer grudges 🐀😈",
+    "Quiet defender with sharp edges 🦔🛡️",
+    "You’re basically a wizard detective 🐶🕵️",
+    "Clever, adaptable, and always watching 🦊👀",
+    "Cold climate, colder stare 🦊❄️",
+    "Classic trickster energy 🦊🔥",
+    "Night flyer with spooky charm 🦇🌙",
+    "Underground strategist 🐹🧠",
+    "Tiny survivor, big courage 🐭✨",
+    "Resourceful and underestimated 🐀📦",
+    "Prepared. Always 🐿️📦",
+    "Maximum energy, minimum chill 🐿️⚡",
+    "Builder, protector, problem-solver 🦫🛠️",
+    "Smooth swimmer, calm soul 🦦🌊",
+    "Blubber-powered confidence 🦭😄",
+    "Big tusks, bigger authority 🦭💪",
+    "Memory, wisdom, unstoppable presence 🐘✨",
+    "Armor-plated determination 🦏💥",
+    "Unmovable emotional force 🦛😤",
+    "Patient, resilient, and underestimated 🐫🌵",
+    "Tall, calm, unbothered 🦒😌",
+    "Balanced, bold, and stylish 🦓✨",
+    "Natural leader energy 🦁🔥",
+    "Strength with grace 🦁🌟",
+    "Silent stalker confidence 🐆😈",
+    "Dark elegance, no mercy 🐆🖤",
+    "Speed, focus, zero hesitation 🐆⚡",
+    "Raw power, controlled fury 🐅🔥",
+    "Sharp eyes, sharp instincts 🐈‍⬛⚡",
+    "Untamed and independent 🐈🌲",
+    "Magical sass included 🐱✨",
+    "Loyal guardian energy 🐕🛡️",
+    "Aggressive loyalty unlocked 🐕🔥",
+    "Desert survivor vibes 🐺🌵",
+    "Laughs first, strikes harder 🐺😈",
+    "Mountain strength, steady resolve 🐐🏔️",
+    "Stubborn, dependable, unstoppable 🐐💪",
+    "Forceful leadership energy 🐏🔥",
+    "Gentle but resilient 🐑✨",
+    "Steady support friend 🐄❤️",
+    "Pure power, no subtlety 🐂💥",
+    "Unbreakable momentum 🐎🔥",
+    "Calm strength with wisdom 🐎🌙",
+    "Hardworking and underrated 🫏✨",
+    "Stubborn excellence 🫏💪",
+    "Soft, quick, alert 🐇💨",
+    "Speed and instincts 🐇⚡",
+    "Unexpected bravery 🐸✨",
+    "Chill exterior, loyal heart 🐸😌",
+    "Magical creature vibes 🦎✨",
+    "Fire-adjacent chaos 🦎🔥",
+    "Precision flyer 🦋⚡",
+    "Gentle magic energy 🦋✨",
+    "Quiet transformation vibes 🦋🌙",
+    "Literal fire spirit 🔥🦎",
+    "You’re mysterious like that ✨🌫️",
+  ],
   animal: [
-    "You’re feeling regal and mighty today! 🦁",
+  	"You’re feeling regal and mighty today! 🦁",
     "Ferocious energy surging through you! 🐯",
     "Strong and grounded vibes. 🐻",
     "Loyal and playful spirit today. 🐶",
@@ -2999,10 +3611,6 @@ const jokes = {
 };
 
 // ===========================================
-// 🌟 MINI GAMES (GLOBAL)
-// ===========================================
-
-// ===========================================
 // 💘 COMPATIBILITY CHECKER
 // ===========================================
 
@@ -3059,14 +3667,14 @@ miniGames.bootybattle = (senderRaw, userRaw) => {
     "butt",
     cfg.max,
     cfg.min,
-    sender
+    sender,
   );
   const targetBooty = generateValue(
     seedTarget,
     "butt",
     cfg.max,
     cfg.min,
-    target
+    target,
   );
 
   if (senderBooty === targetBooty) {
@@ -3116,14 +3724,14 @@ miniGames.plunderraid = (senderRaw, userRaw) => {
     "plunder",
     cfg.max,
     cfg.min,
-    sender
+    sender,
   );
   const targetLoot = generateValue(
     seedTarget,
     "plunder",
     cfg.max,
     cfg.min,
-    target
+    target,
   );
 
   if (senderLoot === targetLoot) {
@@ -3173,14 +3781,14 @@ miniGames.pistolfight = (senderRaw, userRaw) => {
     "intimidation",
     cfg.max,
     cfg.min,
-    sender
+    sender,
   );
   const targetAim = generateValue(
     seedTarget,
     "intimidation",
     cfg.max,
     cfg.min,
-    target
+    target,
   );
 
   if (senderAim === targetAim) {
@@ -3230,14 +3838,14 @@ miniGames.shipbattle = (senderRaw, userRaw) => {
     "cannon_use",
     cfg.max,
     cfg.min,
-    sender
+    sender,
   );
   const targetPower = generateValue(
     seedTarget,
     "cannon_use",
     cfg.max,
     cfg.min,
-    target
+    target,
   );
 
   if (senderPower === targetPower) {
@@ -3287,14 +3895,14 @@ miniGames.swordfight = (senderRaw, userRaw) => {
     "swordsmanship",
     cfg.max,
     cfg.min,
-    sender
+    sender,
   );
   const targetSkill = generateValue(
     seedTarget,
     "swordsmanship",
     cfg.max,
     cfg.min,
-    target
+    target,
   );
 
   if (senderSkill === targetSkill) {
@@ -3387,7 +3995,7 @@ function getActionWord(type) {
     .replace("slap", "Slapped")
     .replace("spank", "Spanked")
     .replace("keg", "Kegged");
-}
+}    
 
 // ===========================================
 // 📅 DAILY STORAGE & COUNTERS
@@ -3412,8 +4020,6 @@ const dailyConsents = {};
 const lock = {};
 const statCounters = {};
 const commandCounters = {};
-const giveawayEntries = [];
-const giveawayWinners = [];
 const santaStats = {};
 let interactionStats = {};
 let interactionStatsDate = "";
@@ -3510,17 +4116,17 @@ const aspectOfTheDayQueryMessages = {
 
   pirate: (winner) =>
     `🏴‍☠️☠️ The Pirate of the Day be ${formatDisplayName(
-      winner.user
+      winner.user,
     )}! ⚓️ May the seas bow before ye! 🌊`,
 
   captain: (winner) =>
     `🏴‍☠️ The *Captain of the Day* be ${formatDisplayName(
-      winner.user
+      winner.user,
     )}! Raise the black flag and salute! ⚓️`,
 
   animal: (winner) =>
     `🐾 The Animal of the Day is ${formatDisplayName(
-      winner.user
+      winner.user,
     )} — a majestic ${winner.chosen}! 👑`,
 
   drink: (winner) =>
@@ -3645,7 +4251,7 @@ app.get("/", (req, res) => {
     if (!lock[type]) lock[type] = false;
     if (lock[type]) {
       return res.send(
-        `Please wait a moment, ${type} of the Day is being updated.`
+        `Please wait a moment, ${type} of the Day is being updated.`,
       );
     }
     lock[type] = true;
@@ -3656,177 +4262,6 @@ app.get("/", (req, res) => {
     let value,
       message = "";
 
-    // ======================================================
-    // 🎁 FULL GIVEAWAY SYSTEM
-    // ======================================================
-
-    const blockedBots = [
-      "streamelements",
-      "nightbot",
-      "moobot",
-      "streamlabs",
-      "fossabot",
-    ];
-
-    if (
-      type === "giveaway" ||
-      type === "giveawayroll" ||
-      type === "giveawayreroll" ||
-      type === "giveawaylist" ||
-      type === "giveawaycount" ||
-      type === "giveawayremove" ||
-      type === "giveawayclear" ||
-      type === "giveawaywinners"
-    ) {
-      // -------------------------------
-      // 🎁 ENTER GIVEAWAY
-      // -------------------------------
-
-      if (type === "giveaway") {
-        if (blockedBots.includes(sender)) {
-          return res.send(`🤖 Bots cannot enter the giveaway.`);
-        }
-
-        const exists = giveawayEntries.find((e) => e.user === sender);
-        if (exists) {
-          return res.send(
-            `🎁 ${senderDisplay}, you are already entered in the giveaway!`
-          );
-        }
-
-        giveawayEntries.push({
-          user: sender,
-          displayName: senderDisplay,
-          timestamp: new Date(),
-        });
-
-        return res.send(
-          `🎁 ${senderDisplay} has entered the giveaway! Good luck! 🍀`
-        );
-      }
-
-      // -------------------------------
-      // 🎲 ROLL WINNER (does NOT clear entries)
-      // -------------------------------
-
-      if (type === "giveawayroll") {
-        if (!giveawayEntries.length) {
-          return res.send("😢 There are no giveaway entries yet!");
-        }
-
-        const winner =
-          giveawayEntries[Math.floor(Math.random() * giveawayEntries.length)];
-
-        giveawayWinners.push({
-          user: winner.user,
-          displayName: winner.displayName,
-          prize: "Giveaway",
-          timestamp: new Date(),
-        });
-
-        return res.send(`🏆 Giveaway winner: ${winner.displayName}! 🎉`);
-      }
-
-      // -------------------------------
-      // 🔁 REROLL WINNER (entries stay)
-      // -------------------------------
-
-      if (type === "giveawayreroll") {
-        if (!giveawayEntries.length) {
-          return res.send("😢 There are no giveaway entries to reroll!");
-        }
-
-        const winner =
-          giveawayEntries[Math.floor(Math.random() * giveawayEntries.length)];
-
-        giveawayWinners.push({
-          user: winner.user,
-          displayName: winner.displayName,
-          prize: "Giveaway (Reroll)",
-          timestamp: new Date(),
-        });
-
-        return res.send(`🔁 Reroll winner: ${winner.displayName}! 🎉`);
-      }
-
-      // -------------------------------
-      // 📜 LIST ENTRIES
-      // -------------------------------
-
-      if (type === "giveawaylist") {
-        if (!giveawayEntries.length) {
-          return res.send("📭 No one has entered the giveaway yet!");
-        }
-
-        const list = giveawayEntries
-          .map((e, i) => `${i + 1}. ${e.displayName}`)
-          .join(" | ");
-
-        return res.send(
-          `🎟️ Giveaway Entries (${giveawayEntries.length}): ${list}`
-        );
-      }
-
-      // -------------------------------
-      // 🔢 COUNT ENTRIES
-      // -------------------------------
-
-      if (type === "giveawaycount") {
-        return res.send(
-          `🎟️ There are currently ${giveawayEntries.length} giveaway entries.`
-        );
-      }
-
-      // -------------------------------
-      // ❌ REMOVE SOMEONE
-      // -------------------------------
-
-      if (type === "giveawayremove") {
-        if (!userRaw) return res.send("⚠️ Please specify a user to remove.");
-
-        const removeUser = cleanUsername(userRaw);
-        const index = giveawayEntries.findIndex((e) => e.user === removeUser);
-
-        if (index === -1) {
-          return res.send(`⚠️ @${removeUser} is not in the giveaway.`);
-        }
-
-        giveawayEntries.splice(index, 1);
-        return res.send(
-          `🗑️ @${removeUser} has been removed from the giveaway.`
-        );
-      }
-
-      // -------------------------------
-      // 🧹 CLEAR ENTRIES
-      // -------------------------------
-
-      if (type === "giveawayclear") {
-        giveawayEntries.length = 0;
-        return res.send("🧹 Giveaway entries have been cleared.");
-      }
-
-      // -------------------------------
-      // 🏅 SHOW RECENT WINNERS
-      // -------------------------------
-
-      if (type === "giveawaywinners") {
-        if (!giveawayWinners.length) {
-          return res.send("📜 There are no recorded giveaway winners yet!");
-        }
-
-        const recent = giveawayWinners.slice(-5).reverse();
-
-        const list = recent
-          .map((w, i) => `${i + 1}. ${w.displayName}`)
-          .join(" | ");
-
-        return res.send(`🏅 Recent giveaway winners: ${list}`);
-      }
-
-      return;
-    }
-
     // -------------------------------
     // 🎅 SANTA NAUGHTY / NICE
     // -------------------------------
@@ -3836,9 +4271,7 @@ app.get("/", (req, res) => {
       const targetDisplay = formatDisplayName(userRaw) || senderDisplay;
 
       const santaVIP = {
-        vikingchels: "nice",
-        flufffaceyeti: "nice",
-        deadlyinkdgirl: "nice",
+        username: "nice"
       };
 
       const santaWeights = {
@@ -3874,7 +4307,7 @@ app.get("/", (req, res) => {
 
       return res.send(
         `🎅 Ho ho ho! Santa checked the list...\n` +
-          `${emoji} ${targetDisplay} is on the **${result} list** today!`
+          `${emoji} ${targetDisplay} is on the **${result} list** today!`,
       );
     }
 
@@ -3895,7 +4328,7 @@ app.get("/", (req, res) => {
         `🎄 Santa Stats for ${display}\n` +
           `🎁 Nice: ${stats.nice}\n` +
           `🔥 Naughty: ${stats.naughty}\n` +
-          `📜 Last result: ${stats.last}`
+          `📜 Last result: ${stats.last}`,
       );
     }
 
@@ -3906,14 +4339,14 @@ app.get("/", (req, res) => {
     if (type === "grouphug") {
       const senderDisplay = formatDisplayName(sender);
       return res.send(
-        `${senderDisplay} gave a big group hug to everyone in chat! 💖`
+        `${senderDisplay} gave a big group hug to everyone in chat! 💖`,
       );
     }
 
     if (type === "groupspank") {
       const senderDisplay = formatDisplayName(sender);
       return res.send(
-        `${senderDisplay} ran around the room spanking everyone on the butt! 👏`
+        `${senderDisplay} ran around the room spanking everyone on the butt! 👏`,
       );
     }
 
@@ -3925,7 +4358,7 @@ app.get("/", (req, res) => {
     if (type === "groupkiss") {
       const senderDisplay = formatDisplayName(sender);
       return res.send(
-        `${senderDisplay} sent a sweet group kiss to everyone! 😘💋`
+        `${senderDisplay} sent a sweet group kiss to everyone! 😘💋`,
       );
     }
 
@@ -3945,97 +4378,11 @@ app.get("/", (req, res) => {
         const commandDetails = customCommands[command];
 
         return res.send(
-          commandDetails.message.replace("{sender}", senderDisplay)
+          commandDetails.message.replace("{sender}", senderDisplay),
         );
       } else {
         return res.send(`❌ Invalid command. Try !grouphug, !grouppat, etc.`);
       }
-    }
-
-    // ===========================================
-    // 💖 NICE COMMAND
-    // ===========================================
-
-    if (type === "nice") {
-      const target = "sot_uk";
-      const targetDisplay = formatDisplayName(target);
-
-      const compliments = [
-        // Wholesome & Kind
-        "is an absolute treasure 💎",
-        "always brings amazing vibes ✨",
-        "has a heart of pure gold 💛",
-        "makes chat better just by being here 🌟",
-        "is dangerously wholesome 😌",
-        "deserves all the good things 🎁",
-        "radiates kindness like a warm blanket 🧣",
-        "is a walking comfort character 🥰",
-        "makes everyone feel welcome 💖",
-        "is genuinely lovely inside and out 🌸",
-
-        // Legendary / Praise
-        "is a certified legend 🏆",
-        "is an icon, truly ⭐",
-        "is built different (in the best way) 💪",
-        "has main character energy 🎬",
-        "is operating on a higher plane of excellence 🚀",
-        "is a rare and powerful being 🔮",
-        "is elite-tier human material 🏅",
-        "is simply unmatched 👑",
-        "is a cornerstone of the community 🧱",
-
-        // Classy / Distinguished
-        "is a distinguished gentleman 🎩",
-        "is a person of remarkable taste and refinement 🍷",
-        "carries themselves with undeniable elegance 🕴️",
-        "has the poise of royalty 👑",
-        "is incredibly well-mannered and refined 🪶",
-        "is the very picture of sophistication 📜",
-        "has an air of quiet excellence 🎻",
-        "is classy without even trying ✨",
-
-        // Cozy / Cute
-        "is cozy vibes incarnate ☕",
-        "is softer than a pile of plushies 🧸",
-        "has the friendliest energy ever 🌈",
-        "is like a warm cup of cocoa on a cold day ☕❄️",
-        "is peak comfort human 🛋️",
-        "is wholesome energy personified 💞",
-        "feels like home 🏡",
-
-        // Fun / Light Humor
-        "is unfairly delightful 😄",
-        "is legally required to be appreciated 🚨",
-        "is way too nice, honestly 😤💖",
-        "has no business being this awesome 😌",
-        "is carrying chat morale on their back 💪",
-        "is the reason vibes are immaculate ✨",
-        "is a professional good-egg 🥚",
-        "is 100% good noodle 🍜",
-
-        // Community Love
-        "is an essential part of what makes this place special 💬",
-        "helps make this community shine ✨",
-        "brings people together just by being here 🤝",
-        "is deeply appreciated by everyone 💕",
-        "adds so much joy to the stream 🎉",
-        "is a gift to this chat 🎁",
-        "makes the internet a better place 🌍",
-
-        // Bonus Fancy
-        "is an absolute delight to behold 🎭",
-        "is a beacon of excellence 🕯️",
-        "is a refined soul with excellent vibes 🪄",
-        "is elegance with a sprinkle of chaos ✨😈",
-        "is proof that good humans exist 🌟",
-      ];
-
-      const compliment =
-        compliments[Math.floor(Math.random() * compliments.length)];
-
-      const message = `${targetDisplay} ${compliment}`;
-
-      return res.send(message);
     }
 
     // ===========================================
@@ -4051,31 +4398,20 @@ app.get("/", (req, res) => {
         interactionStatsDate = today;
       }
 
-      // -------------------------------------------
-      // 🎲 RANDOM / TRACK MODE (URL-DRIVEN)
-      // -------------------------------------------
+      // Helper: should this interaction be random?
+      const isRandom = doNotTrack.includes(type);
 
-      const forceRandom =
-        req.query.random === "" || req.query.random === "true";
-
-      const shouldTrack = !forceRandom;
-
-      // -------------------------------------------
-      // 🔢 VALUE GENERATOR
-      // -------------------------------------------
-
+      // Helper: generate value
       const getInteractionValue = (seedBase, senderName) => {
-        return forceRandom
-          ? Math.floor(Math.random() * 100) + 1
-          : generateValue(seedBase, type, 100, 1, senderName);
+        if (isRandom) {
+          return Math.floor(Math.random() * 100) + 1;
+        }
+        return generateValue(seedBase, type, 100, 1, senderName);
       };
 
-      // -------------------------------------------
-      // 📊 TRACKING GUARD
-      // -------------------------------------------
-
+      // Helper: maybe record
       const maybeRecord = (s, t, ty) => {
-        if (shouldTrack) {
+        if (!doNotTrack.includes(ty)) {
           recordInteraction(s, t, ty);
         }
       };
@@ -4086,7 +4422,7 @@ app.get("/", (req, res) => {
 
       if (type === "accept") {
         const pending = Array.from(pendingConsents.entries()).find(
-          ([, v]) => v.target === sender
+          ([, v]) => v.target === sender,
         );
 
         if (!pending) {
@@ -4129,9 +4465,9 @@ app.get("/", (req, res) => {
         const actionWord = getActionWord(info.type);
 
         const message = `${formatDisplayName(
-          info.sender
+          info.sender,
         )} ${actionWord} ${formatDisplayName(
-          info.target
+          info.target,
         )} with ${value}% power!${joke}`;
 
         maybeRecord(info.sender, info.target, info.type);
@@ -4144,7 +4480,7 @@ app.get("/", (req, res) => {
 
       if (type === "deny") {
         const pending = Array.from(pendingConsents.entries()).find(
-          ([, v]) => v.target === sender
+          ([, v]) => v.target === sender,
         );
 
         if (!pending) {
@@ -4158,30 +4494,34 @@ app.get("/", (req, res) => {
         return res.send(
           `🍑 ${formatDisplayName(info.target)} denied your ${
             info.type
-          }, ${formatDisplayName(info.sender)}!`
+          }, ${formatDisplayName(info.sender)}!`,
         );
       }
 
       const actionWord = getActionWord(type);
 
-      // ===========================================
-      // 🤕 SELF-INTERACTION
-      // ===========================================
-
       if (!userRaw || sender === cleanUsername(userRaw)) {
-        const seed = `${today}-${type}-${sender}-${sender}`;
-        const value = getInteractionValue(seed, sender);
+        const value = doNotTrack.includes(type)
+          ? Math.floor(Math.random() * 100) + 1
+          : generateValue(
+              `${today}-${type}-${sender}-${sender}`,
+              type,
+              100,
+              1,
+              sender,
+            );
+
         const joke = getJoke(req, type, value, { min: 1, max: 100 });
+        const actionWord = getActionWord(type);
 
         const message = `${senderDisplay} ${actionWord} themselves with ${value}% power!${joke}`;
 
-        maybeRecord(sender, sender, type);
+        if (!doNotTrack.includes(type)) {
+          recordInteraction(sender, sender, type);
+        }
+
         return res.send(message);
       }
-
-      // ===========================================
-      // 🫱 CONSENT CHECK
-      // ===========================================
 
       const alreadyApproved =
         dailyConsents[today]?.[target]?.includes(sender) || false;
@@ -4189,7 +4529,7 @@ app.get("/", (req, res) => {
       if (requireConsent && !alreadyApproved) {
         if (pendingConsents.has(target)) {
           return res.send(
-            `${targetDisplay} already has a pending consent request.`
+            `${targetDisplay} already has a pending consent request.`,
           );
         }
 
@@ -4203,13 +4543,9 @@ app.get("/", (req, res) => {
           `🫱 ${senderDisplay} wants to ${type} ${targetDisplay}!\n` +
             `${targetDisplay}, type !accept or !deny within ${
               CONSENT_TIMEOUT_MS / 1000
-            } seconds.`
+            } seconds.`,
         );
       }
-
-      // ===========================================
-      // ⭐ OVERRIDES
-      // ===========================================
 
       const override =
         specialInteractions[sender]?.[target]?.[type] ||
@@ -4234,10 +4570,6 @@ app.get("/", (req, res) => {
         maybeRecord(sender, target, type);
         return res.send(message);
       }
-
-      // ===========================================
-      // 🎬 DEFAULT INTERACTION
-      // ===========================================
 
       const joke = getJoke(req, type, value, { min: 1, max: 100 });
 
@@ -4301,7 +4633,7 @@ app.get("/", (req, res) => {
       if (!interactions.includes(interactionType)) {
         const list = interactions.join(", ");
         return res.send(
-          `❌ That interaction does not exist. Available interactions: ${list}`
+          `❌ That interaction does not exist. Available interactions: ${list}`,
         );
       }
 
@@ -4380,7 +4712,7 @@ app.get("/", (req, res) => {
 
       if (!topSenders.length && !receiverMap.length) {
         return res.send(
-          `📊 No "${interactionType}" interactions recorded today!`
+          `📊 No "${interactionType}" interactions recorded today!`,
         );
       }
 
@@ -4462,7 +4794,7 @@ app.get("/", (req, res) => {
         commandCounters[type] = (commandCounters[type] || 0) + 1;
 
         return res.send(
-          `${senderRaw} has added "${word}" +1. Total "${word}" count today: ${store.count}.`
+          `${senderRaw} has added "${word}" +1. Total "${word}" count today: ${store.count}.`,
         );
       }
 
@@ -4474,11 +4806,11 @@ app.get("/", (req, res) => {
           commandCounters[type] = (commandCounters[type] || 0) + 1;
 
           return res.send(
-            `${senderRaw} has removed "${word}" -1. Total "${word}" count today: ${store.count}.`
+            `${senderRaw} has removed "${word}" -1. Total "${word}" count today: ${store.count}.`,
           );
         } else {
           return res.send(
-            `The "${word}" count is already 0. Cannot remove further.`
+            `The "${word}" count is already 0. Cannot remove further.`,
           );
         }
       }
@@ -4488,7 +4820,7 @@ app.get("/", (req, res) => {
         return res.send(
           `"${word}" has been said ${count} time${
             count !== 1 ? "s" : ""
-          } today!.`
+          } today!.`,
         );
       }
     }
@@ -4502,7 +4834,7 @@ app.get("/", (req, res) => {
       const base = aspectOfTheDayAliases[type];
       if (!base || !aspectsOfTheDay[base]) {
         return res.send(
-          `${senderDisplay}, that 'of the Day' title is not configured.`
+          `${senderDisplay}, that 'of the Day' title is not configured.`,
         );
       }
 
@@ -4526,7 +4858,7 @@ app.get("/", (req, res) => {
     // ===========================================
 
     // ===========================================
-    // 📝 MESSAGE TEMPLATES (TRACKED)
+    // 📝 MESSAGE TEMPLATES FOR TRACKED LIST TYPES
     // ===========================================
 
     const listMessageTemplates = {
@@ -4544,6 +4876,15 @@ app.get("/", (req, res) => {
 
       fish: (sender, cfg, chosen, tribute) =>
         `${sender}, you caught a ${chosen}! ${tribute}`,
+
+      sails: (sender, cfg, chosen, joke) =>
+        `${sender}, today your ship is repping the ${chosen}! ${joke}`,
+
+      patronus: (sender, cfg, chosen, joke) =>
+        `${sender}, your Patronus takes the form of a ${chosen}! ${joke}`,
+
+      spells: (sender, cfg, chosen, joke) =>
+        `${sender}, you swing your wand and cast ${chosen}!`,
     };
 
     // ===========================================
@@ -4557,7 +4898,7 @@ app.get("/", (req, res) => {
       { map: wizardvibes, jokesKey: "wizard", category: "wizardvibes" },
       { map: outfits, jokesKey: "outfits", category: "outfits" },
       { map: elements, jokesKey: "elements", category: "elements" },
-      { map: powers, jokesKey: "powers" },
+      { map: powers, jokesKey: "powers", category: "powers" },
       { map: keg, jokesKey: "keg", category: "keg" },
       {
         map: pirateoutfits,
@@ -4572,6 +4913,9 @@ app.get("/", (req, res) => {
       },
       { map: auraitems, jokesKey: "auraitems", category: "auraitems" },
       { map: animal, jokesKey: "animal", category: "animal" },
+      { map: sails, jokesKey: "sails", category: "sails" },
+      { map: patronus, jokesKey: "patronus", category: "patronus" },
+      { map: spells, jokesKey: "spells", category: "spells" },
       { map: drink, jokesKey: "drink", category: "drink" },
       { map: fish, jokesKey: "fish", category: "fish" },
     ];
@@ -4586,20 +4930,11 @@ app.get("/", (req, res) => {
       const cfg = map[type];
       const jokesForGroup = jokes[jokesKey] || [];
 
-      // -------------------------------------------
-      // 🎲 RANDOM / TRACK MODE (URL-DRIVEN)
-      // -------------------------------------------
+      // ===========================================
+      // 🎲 RANDOM INDEX (tracked vs doNotTrack)
+      // ===========================================
 
-      const forceRandom =
-        req.query.random === "" || req.query.random === "true";
-
-      const shouldTrack = !forceRandom;
-
-      // -------------------------------------------
-      // 🔢 INDEX GENERATOR
-      // -------------------------------------------
-
-      const index = forceRandom
+      let index = doNotTrack.includes(type)
         ? Math.floor(Math.random() * cfg.list.length)
         : generateValue(seed, type, cfg.list.length - 1, 0, sender);
 
@@ -4607,25 +4942,25 @@ app.get("/", (req, res) => {
       let joke = jokesForGroup[index] || "";
 
       // ===========================================
-      // 🎯 RANDOM RESPONSE (NO TRACKING)
+      // 🎯 DO-NOT-TRACK CUSTOM MESSAGE FORMAT
       // ===========================================
 
-      if (!shouldTrack) {
+      if (doNotTrack.includes(type)) {
         const actionWord = getActionWord(type) || type;
 
-        // interaction-style list
+        // interaction-style (requires target)
         if (targetDisplay) {
           return res.send(
-            `${senderDisplay} ${actionWord} ${targetDisplay} with "${chosen}" — ${joke}`
+            `${senderDisplay} ${actionWord} ${targetDisplay} with a "${chosen}" — ${joke}`,
           );
         }
 
-        // solo list command
-        return res.send(`${senderDisplay} got "${chosen}" — ${joke}`);
+        // fallback: no target (solo commands)
+        return res.send(`${senderDisplay} used a "${chosen}" — ${joke}`);
       }
 
       // ===========================================
-      // 🌟 ASPECT OF THE DAY (TRACKED ONLY)
+      // 🌟 ASPECT OF THE DAY — TRACKED TYPES ONLY
       // ===========================================
 
       const trigger = listAspectTriggers[type];
@@ -4639,7 +4974,6 @@ app.get("/", (req, res) => {
 
         if (!alreadyWinner && matchesTrigger) {
           aspectsOfTheDay[type][today] = { user: sender, chosen };
-
           const msg = `${senderDisplay}, your ${cfg.label} today is ${chosen}! ${joke} 🏆 You are the ${cfg.label} of the Day! 🎉`;
 
           statCounters[sender] = statCounters[sender] || {};
@@ -4649,25 +4983,26 @@ app.get("/", (req, res) => {
           return res.send(msg);
         }
 
-        // avoid duplicate winner
+        // forced reroll to avoid double winner
         if (alreadyWinner && matchesTrigger) {
-          const altIndex = index < cfg.list.length - 1 ? index + 1 : index - 1;
-          chosen = cfg.list[altIndex];
+          if (index < cfg.list.length - 1) index++;
+          else if (index > 0) index--;
+          chosen = cfg.list[index];
         }
       }
 
       // ===========================================
-      // 📝 TRACKED MESSAGE
+      // 📝 TEMPLATE FOR TRACKED LIST TYPES
       // ===========================================
 
       const template =
         listMessageTemplates[category] || listMessageTemplates.default;
-
       const finalExtra = category === "fish" ? jokes.fish[0] : joke;
+
       const msg = template(senderDisplay, cfg, chosen, finalExtra);
 
       // ===========================================
-      // 📊 TRACKING
+      // 📊 Update Stats
       // ===========================================
 
       statCounters[sender] = statCounters[sender] || {};
@@ -4680,10 +5015,6 @@ app.get("/", (req, res) => {
     // ===========================================
     // 🔢 GENERIC NUMERIC-BASED HANDLER
     // ===========================================
-
-    // -------------------------------------------
-    // 📝 MESSAGE TEMPLATES
-    // -------------------------------------------
 
     const messageTemplates = {
       stats: (sender, cfg, value, space, unit, joke) =>
@@ -4720,10 +5051,6 @@ app.get("/", (req, res) => {
         `${sender}, your ${cfg.label} is ${value}${space}${unit} today!${joke}`,
     };
 
-    // -------------------------------------------
-    // 🔢 GROUP DEFINITIONS
-    // -------------------------------------------
-
     const numericGroups = [
       { map: seaofthieves, category: "seaofthieves" },
       { map: stats, category: "stats" },
@@ -4739,126 +5066,134 @@ app.get("/", (req, res) => {
       { map: piracy, category: "piracy" },
     ];
 
-    // -------------------------------------------
-    // 🔁 HANDLER
-    // -------------------------------------------
-
     for (const { map, category } of numericGroups) {
       if (!map[type]) continue;
 
       const cfg = map[type];
 
-      // -------------------------------------------
-      // 🎲 RANDOM / TRACK MODE (URL-DRIVEN)
-      // -------------------------------------------
-
-      const forceRandom =
-        req.query.random === "" || req.query.random === "true";
-
-      const shouldTrack = !forceRandom;
-
-      const getValue = () =>
-        forceRandom
-          ? Math.floor(Math.random() * (cfg.max - cfg.min + 1)) + cfg.min
-          : generateValue(seed, type, cfg.max, cfg.min, sender);
-
-      // -------------------------------------------
-      // 🌸 SPECIAL: BB
-      // -------------------------------------------
+      // -------------------------------
+      // Special handling for BB
+      // -------------------------------
 
       if (map === stats && type === "bb") {
-        if (!shouldTrack) {
-          const band = pickRandom(cfg.bands);
-          const cup = pickRandom(cfg.cups);
-          return res.send(
-            `${senderDisplay}, your boob size is ${band}${cup} today!`
-          );
-        }
-
         const bandIndex = generateValue(
           seed,
           "bb_band",
           cfg.bands.length - 1,
           0,
-          sender
+          sender,
         );
         const cupIndex = generateValue(
           seed,
           "bb_cup",
           cfg.cups.length - 1,
           0,
-          sender
+          sender,
         );
 
-        const size = `${cfg.bands[bandIndex]}${cfg.cups[cupIndex]}`;
-        const biggestSize = `${cfg.bands.at(-1)}${cfg.cups.at(-1)}`;
+        const band = cfg.bands[bandIndex];
+        const cup = cfg.cups[cupIndex];
+        const size = `${band}${cup}`;
+
+        const cupRank = {
+          AA: 1,
+          A: 2,
+          B: 3,
+          C: 4,
+          D: 5,
+          DD: 6,
+          E: 7,
+          F: 8,
+          FF: 9,
+          G: 10,
+          GG: 11,
+        };
+        const rank = cupRank[cup] || 1;
+        let level = rank <= 3 ? "low" : rank <= 6 ? "medium" : "high";
+
+        const biggestSize = `${cfg.bands[cfg.bands.length - 1]}${
+          cfg.cups[cfg.cups.length - 1]
+        }`;
+        const joke = isJokeEnabled(req, "bb")
+        ? (jokes.bb?.[level] ? " " + pickRandom(jokes.bb[level]) : "")
+        : "";
 
         if (size === biggestSize && !aspectsOfTheDay.bb[today]) {
           aspectsOfTheDay.bb[today] = { user: sender, size };
-          return res.send(
-            `${senderDisplay}, your size is ${size} today! 🎀 You are the Boob of the Day!`
-          );
+          message = `${senderDisplay}, your size is ${size} today! 🎀 You are the Boob of the Day!`;
+        } else {
+          message = `${senderDisplay}, your boob size is ${size} today! ${joke}`;
         }
 
-        statCounters[sender] = statCounters[sender] || {};
-        statCounters[sender][type] = (statCounters[sender][type] || 0) + 1;
-        commandCounters[type] = (commandCounters[type] || 0) + 1;
-
-        return res.send(`${senderDisplay}, your boob size is ${size} today!`);
-      }
-
-      // -------------------------------------------
-      // 🍆 SPECIAL: PP
-      // -------------------------------------------
-
-      if (map === stats && type === "pp") {
-        const value = getValue();
-        const cm = inchesToCm(value);
-        const joke = getJoke(req, type, value, cfg);
-
-        if (shouldTrack) {
+        if (!doNotTrack.includes(type)) {
           statCounters[sender] = statCounters[sender] || {};
           statCounters[sender][type] = (statCounters[sender][type] || 0) + 1;
           commandCounters[type] = (commandCounters[type] || 0) + 1;
         }
 
-        return res.send(
-          `${senderDisplay}, your ${cfg.label} is ${value} inches (${cm} cm) today!${joke}`
-        );
+        return res.send(message);
       }
 
-      // -------------------------------------------
-      // 🔢 GENERIC NUMERIC
-      // -------------------------------------------
+      // -------------------------------
+      // Special handling for PP
+      // -------------------------------
 
-      let value = getValue();
+      if (map === stats && type === "pp") {
+        const value = generateValue(seed, type, cfg.max, cfg.min, sender);
+        const cm = inchesToCm(value);
+        const joke = getJoke(req, type, value, cfg);
+        message = `${senderDisplay}, your ${cfg.label} is ${value} inches (${cm} cm) today!${joke}`;
+
+        if (!doNotTrack.includes(type)) {
+          statCounters[sender] = statCounters[sender] || {};
+          statCounters[sender][type] = (statCounters[sender][type] || 0) + 1;
+          commandCounters[type] = (commandCounters[type] || 0) + 1;
+        }
+
+        return res.send(message);
+      }
+
+      // -------------------------------
+      // Generic numeric handler
+      // -------------------------------
+
+      value = generateValue(seed, type, cfg.max, cfg.min, target);
       const space = spaceIf(cfg.unitSpace);
       const unit = cfg.unit || "";
-
-      // -------------------------------------------
-      // 🌟 ASPECT OF THE DAY (TRACKED ONLY)
-      // -------------------------------------------
 
       const triggerValue = aspectsOfTheDayTriggers[type];
       const hasAspect = aspectsOfTheDay[type] !== undefined;
 
-      if (shouldTrack && triggerValue !== undefined && hasAspect) {
-        const alreadyWinner = Boolean(aspectsOfTheDay[type][today]);
+      if (triggerValue !== undefined && hasAspect) {
+        const winnerAlready = Boolean(aspectsOfTheDay[type][today]);
 
-        if (!alreadyWinner && value === triggerValue) {
+        if (!winnerAlready && value === triggerValue) {
           aspectsOfTheDay[type][today] = { user: sender, value };
 
           const winnerFn = aspectOfTheDayMessages[type];
-          return res.send(
-            winnerFn
-              ? winnerFn(senderDisplay, value, space, cfg)
-              : `${senderDisplay}, your ${cfg.label} is ${value}${space}${unit} today! 🎉 You are the ${cfg.label} of the Day!`
-          );
+          message = winnerFn
+            ? winnerFn(senderDisplay, value, space, cfg)
+            : `${senderDisplay}, your ${cfg.label} is ${value}${space}${unit} today! 🎉 You are the ${cfg.label} of the Day!`;
+
+          if (!doNotTrack.includes(type)) {
+            statCounters[sender] = statCounters[sender] || {};
+            statCounters[sender][type] = (statCounters[sender][type] || 0) + 1;
+            commandCounters[type] = (commandCounters[type] || 0) + 1;
+          }
+
+          return res.send(message);
         }
 
-        if (alreadyWinner && value === triggerValue) {
-          value += value < cfg.max ? 1 : -1;
+        if (winnerAlready && value === triggerValue) {
+          if (value < cfg.max) value++;
+          else if (value > cfg.min) value--;
         }
+      }
+
+      let level = "low";
+      if (cfg.levels && Array.isArray(cfg.levels)) {
+        if (value >= cfg.levels[0] && value <= cfg.levels[1]) level = "medium";
+        if (value > cfg.levels[1]) level = "high";
       }
 
       const joke = getJoke(req, type, value, cfg);
@@ -4866,10 +5201,9 @@ app.get("/", (req, res) => {
         messageTemplates[type] ||
         messageTemplates[category] ||
         messageTemplates.default;
+      message = template(senderDisplay, cfg, value, space, unit, joke);
 
-      const message = template(senderDisplay, cfg, value, space, unit, joke);
-
-      if (shouldTrack) {
+      if (!doNotTrack.includes(type)) {
         statCounters[sender] = statCounters[sender] || {};
         statCounters[sender][type] = (statCounters[sender][type] || 0) + 1;
         commandCounters[type] = (commandCounters[type] || 0) + 1;
@@ -4916,4 +5250,3 @@ app.get("/ping", (req, res) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Daily Stat API running on port ${port}`));
-
