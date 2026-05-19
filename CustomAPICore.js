@@ -1,6 +1,6 @@
+const CHANNEL_NAME = "default";
 import express from "express";
 import crypto from "crypto";
-
 const app = express();
 const TIMEZONE = "Europe/London";
 
@@ -27,7 +27,7 @@ const SINGLE_VALUE_TYPES = new Set([
 function generateValue(seed, offset, max, min = 0, user = "") {
   const hash = crypto
     .createHash("md5")
-    .update(seed + offset + user)
+    .update(seed + offset + user + CHANNEL_NAME)
     .digest("hex");
   const num = parseInt(hash.slice(0, 8), 16);
   return (num % (max - min + 1)) + min;
