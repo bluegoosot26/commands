@@ -11,5 +11,6 @@ const doNotTrack = [
   "slap",
   "sails",
   "pp",
+  "daddy",
 ];
 export default doNotTrack;
