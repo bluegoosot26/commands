@@ -1782,7 +1782,9 @@ const triggerValue = doNotTrack.includes(type)
   : aspectsOfTheDayTriggers[type];
 if (!aspectsOfTheDay[type]) aspectsOfTheDay[type] = {};
 
-const winnerAlready = Boolean(aspectsOfTheDay[type][today]);
+const winnerAlready = doNotTrack.includes(type)
+  ? false
+  : Boolean(aspectsOfTheDay[type][today]);
 
 let message;
 
