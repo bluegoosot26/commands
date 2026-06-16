@@ -1583,54 +1583,113 @@ for (const { map, category } of numericGroups) {
   }
 
   // ==================================================
-  // SPECIAL HANDLER: BB
-  // ==================================================
-  if (map === stats && type === "bb") {
-    const bandIndex = generateValue(seed, "bb_band", cfg.bands.length - 1, 0, sender);
-    const cupIndex = generateValue(seed, "bb_cup", cfg.cups.length - 1, 0, sender);
+// SPECIAL HANDLER: BB
+// ==================================================
 
-    const band = cfg.bands[bandIndex];
-    const cup = cfg.cups[cupIndex];
-    const size = `${band}${cup}`;
+if (map === stats && type === "bb") {
 
-    const cupRank = {
-      AA: 1, A: 2, B: 3, C: 4, D: 5,
-      DD: 6, E: 7, F: 8, FF: 9, G: 10, GG: 11,
+  const bandIndex = doNotTrack.includes(type)
+    ? Math.floor(Math.random() * cfg.bands.length)
+    : generateValue(seed, "bb_band", cfg.bands.length - 1, 0, sender);
+
+  const cupIndex = doNotTrack.includes(type)
+    ? Math.floor(Math.random() * cfg.cups.length)
+    : generateValue(seed, "bb_cup", cfg.cups.length - 1, 0, sender);
+
+  const band = cfg.bands[bandIndex];
+  const cup = cfg.cups[cupIndex];
+  const size = `${band}${cup}`;
+
+  const cupRank = {
+    AA: 1,
+    A: 2,
+    B: 3,
+    C: 4,
+    D: 5,
+    DD: 6,
+    E: 7,
+    F: 8,
+    FF: 9,
+    G: 10,
+    GG: 11,
+  };
+
+  const rank = cupRank[cup] || 1;
+  const level = rank <= 3 ? "low" : rank <= 6 ? "medium" : "high";
+
+  const biggestSize =
+    `${cfg.bands[cfg.bands.length - 1]}${cfg.cups[cfg.cups.length - 1]}`;
+
+  const joke = isJokeEnabled(req, "bb")
+    ? (jokes.bb?.[level] ? pickRandom(jokes.bb[level]) : "")
+    : "";
+
+  const winnerAlready = doNotTrack.includes(type)
+    ? false
+    : Boolean(aspectsOfTheDay.bb[today]);
+
+  let message;
+
+  // -------------------------------
+  // FIRST WINNER
+  // -------------------------------
+
+  if (
+    !doNotTrack.includes(type) &&
+    !winnerAlready &&
+    size === biggestSize
+  ) {
+    aspectsOfTheDay.bb[today] = {
+      user: sender,
+      size,
     };
 
-    const rank = cupRank[cup] || 1;
-    const level = rank <= 3 ? "low" : rank <= 6 ? "medium" : "high";
-
-    const biggestSize =
-      `${cfg.bands[cfg.bands.length - 1]}${cfg.cups[cfg.cups.length - 1]}`;
-
-    const joke = isJokeEnabled(req, "bb")
-      ? (jokes.bb?.[level] ? pickRandom(jokes.bb[level]) : "")
-      : "";
-
-    const winnerAlready = Boolean(aspectsOfTheDay.bb[today]);
-
-    let message;
-
-    if (!winnerAlready && size === biggestSize) {
-      aspectsOfTheDay.bb[today] = { user: sender, size };
-
-      message = `${senderDisplay}, your size is ${size} today! You are the Boob of the Day!`;
-    } else if (winnerAlready) {
-      message = `${senderDisplay}, your size is ${aspectsOfTheDay.bb[today].size} today! You are the Boob of the Day!`;
-    } else {
-      message = `${senderDisplay}, your boob size is ${size} today! ${joke}`;
-    }
-
-    return sendAndTrack(res, message, sender, type, doNotTrack, statCounters, commandCounters);
+    message =
+      `${senderDisplay}, your boob size today is ${size}! You are the Boob of the Day!`;
   }
+
+  // -------------------------------
+  // REPEAT WINNER
+  // -------------------------------
+
+  else if (
+    !doNotTrack.includes(type) &&
+    winnerAlready
+  ) {
+    message =
+      `${senderDisplay}, your boob size today is ${aspectsOfTheDay.bb[today].size}! You are the Boob of the Day!`;
+  }
+
+  // -------------------------------
+  // NORMAL RESPONSE
+  // -------------------------------
+
+  else {
+    message =
+      `${senderDisplay}, your boob size today is ${size}! ${joke}`;
+  }
+
+  return sendAndTrack(
+    res,
+    message,
+    sender,
+    type,
+    doNotTrack,
+    statCounters,
+    commandCounters
+  );
+}
 
 // ==================================================
 // SPECIAL HANDLER: PP
 // ==================================================
 
 if (map === stats && type === "pp") {
-  const value = generateValue(seed, type, cfg.max, cfg.min, sender);
+
+  const value = doNotTrack.includes(type)
+    ? Math.floor(Math.random() * (cfg.max - cfg.min + 1)) + cfg.min
+    : generateValue(seed, type, cfg.max, cfg.min, sender);
+
   const cm = Math.round(value * 2.54);
   const joke = getJoke(req, type, value, cfg);
 
@@ -1641,23 +1700,47 @@ if (map === stats && type === "pp") {
     `${senderDisplay}, your PP is ${value} inches (${cm} cm) today!`;
 
   const triggerValue = aspectsOfTheDayTriggers.pp;
-  const winnerAlready = Boolean(aspectsOfTheDay.pp[today]);
+
+  const winnerAlready = doNotTrack.includes(type)
+    ? false
+    : Boolean(aspectsOfTheDay.pp[today]);
 
   let message;
 
-  if (!winnerAlready && value === triggerValue) {
-    aspectsOfTheDay.pp[today] = { user: sender, value };
+  // -------------------------------
+  // FIRST WINNER
+  // -------------------------------
+
+  if (
+    !doNotTrack.includes(type) &&
+    !winnerAlready &&
+    value === triggerValue
+  ) {
+    aspectsOfTheDay.pp[today] = {
+      user: sender,
+      value,
+    };
 
     message = `${winnerMessage} You are the PP of the Day!`;
+  }
 
-  } else if (winnerAlready) {
+  // -------------------------------
+  // REPEAT WINNER
+  // -------------------------------
 
+  else if (
+    !doNotTrack.includes(type) &&
+    winnerAlready
+  ) {
     message = `${winnerMessage} You are the PP of the Day!`;
+  }
 
-  } else {
+  // -------------------------------
+  // NORMAL RESPONSE
+  // -------------------------------
 
+  else {
     message = baseMessage;
-
   }
 
   return sendAndTrack(
