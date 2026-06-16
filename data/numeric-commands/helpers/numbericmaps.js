@@ -10,7 +10,7 @@ import hold from "../default-commands/hold.js";
 import personality from "../default-commands/personality.js";
 import seaofthieves from "../default-commands/seaofthieves.js";
 import skills from "../default-commands/skills.js";
-import customnumericcommands from "../default-commands/customnumericcommands.js"
+import customnumericcommands from "../customnumericcommands.js"
 
 const numericGroups = [
       { map: seaofthieves, category: "seaofthieves" },
@@ -25,6 +25,6 @@ const numericGroups = [
       { map: hold, category: "hold" },
       { map: carry, category: "carry" },
       { map: piracy, category: "piracy" },
-      { map: customnumericcommands, category: "customnumericcommands" },
+      { map: customnumericcommands, category: "customItems" },
     ];
     export default numericGroups;
