@@ -16,7 +16,7 @@ import sails from "../default-commands/sails.js";
 import spells from "../default-commands/spells.js";
 import wizardvibes from "../default-commands/wizard.js";
 import wizarditems from "../default-commands/wizarditems.js";
-import customItems from "../default-commands/customlistcommands.js";
+import customItems from "../customlistcommands.js";
 
     const listGroups = [
       { map: colors, jokesKey: "colors", category: "colors" },
