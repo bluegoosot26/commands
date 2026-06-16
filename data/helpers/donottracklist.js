@@ -9,5 +9,6 @@ const doNotTrack = [
   "love",
   "pat",
   "slap",
+  "pp",
 ];
 export default doNotTrack;
