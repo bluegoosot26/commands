@@ -1472,8 +1472,13 @@ app.get("/", (req, res) => {
 // ASPECT OF THE DAY — TRACKED TYPES ONLY
 // ===========================================
 
-const trigger = listAspectTriggers[type];
-const hasAspect = aspectsOfTheDay[type] !== undefined;
+const trigger = doNotTrack.includes(type)
+  ? undefined
+  : listAspectTriggers[type];
+
+const hasAspect =
+  !doNotTrack.includes(type) &&
+  aspectsOfTheDay[type] !== undefined;
 
 if (trigger && hasAspect) {
   const alreadyWinner = Boolean(aspectsOfTheDay[type][today]);
@@ -1675,13 +1680,23 @@ let value;
 if (SINGLE_VALUE_TYPES.has(type)) {
   value = generateGlobalValue(type, 0, cfg.max, cfg.min);
 } else {
+ if (doNotTrack.includes(type)) {
+  value =
+    Math.floor(Math.random() * (cfg.max - cfg.min + 1)) +
+    cfg.min;
+} else if (SINGLE_VALUE_TYPES.has(type)) {
+  value = generateGlobalValue(type, 0, cfg.max, cfg.min);
+} else {
   value = generateValue(seed, type, cfg.max, cfg.min, target);
+}
 }
 
 const space = spaceIf(cfg.unitSpace);
 const unit = cfg.unit || "";
 
-const triggerValue = aspectsOfTheDayTriggers[type];
+const triggerValue = doNotTrack.includes(type)
+  ? undefined
+  : aspectsOfTheDayTriggers[type];
 if (!aspectsOfTheDay[type]) aspectsOfTheDay[type] = {};
 
 const winnerAlready = Boolean(aspectsOfTheDay[type][today]);
