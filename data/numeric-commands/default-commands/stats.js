@@ -20,7 +20,7 @@ const stats = {
       `${sender}, Your hair has reached ${value}cm today! ${joke}`,
   },
   pp: {
-    min: 3,
+    min: 15,
     max: 15,
     levels: [5, 7],
     unit: "inches",
