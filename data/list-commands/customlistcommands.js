@@ -1,12 +1,14 @@
 const customItems = {
-  customitem: {
+  Ales: {
     list: [
-      "item1",
-      "item2",
+      "stout",
+      "IPA",
+      "Amber",
+      "bogweed",
     ],
-    label: "today your customitem is",
+    label: "today's community ale is",
     template: (sender, chosen, joke) =>
-      `${sender}, today your customitem is ${chosen}! ${joke}`,
+      `${sender}, today's community ale is ${chosen}! ${joke}`,
   },
 
   customitem2: {
