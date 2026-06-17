@@ -1,5 +1,5 @@
 const customItems = {
-  Ales: {
+  ales: {
     list: [
       "stout",
       "IPA",
