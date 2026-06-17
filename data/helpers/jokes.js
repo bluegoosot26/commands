@@ -390,6 +390,12 @@ sails: [
     "Fast as lightning! ⚡",
     "Cosmic awareness at its peak! 🌌",
   ],
+    ales: [
+    "Darker than your heart 🖤",
+    "Ok Hophead chill out ❄️",
+    "Da Fluff is that 🧙‍♂️",
+
+  ],
   pirateoutfits: [
     "Looking ready to plunder! 🪖",
     "Captain chic on point! 🧥",
@@ -1386,5 +1392,6 @@ sails: [
     ],
     high: ["An absolute legend 😳", "That’s... gravitationally impressive 🌌"],
   },
+  
 };
 export default jokes;
