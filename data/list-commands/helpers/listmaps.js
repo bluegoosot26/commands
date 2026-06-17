@@ -45,6 +45,6 @@ import customItems from "../customlistcommands.js";
       { map: spells, jokesKey: "spells", category: "spells" },
       { map: drink, jokesKey: "drink", category: "drink" },
       { map: fish, jokesKey: "fish", category: "fish" },
-      { map: ales, jokesKey: "ales", category: "ales" },
+      { map: customItems, jokesKey: "customItems", category: "ales" },
     ];
 export default listGroups;
