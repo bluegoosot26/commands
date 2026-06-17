@@ -393,6 +393,7 @@ sails: [
     ales: [
     "Darker than your heart 🖤",
     "Ok Hophead chill out ❄️",
+      "ALERT! WE HAVE AN OLD PERSON IN CHAT 🧓 ",
     "Da Fluff is that 🧙‍♂️",
 
   ],
