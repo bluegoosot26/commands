@@ -1,5 +1,5 @@
 const SINGLE_VALUE_TYPES = new Set([
-  "items1",
+  "ales",
   "items2",
 ]);
 
